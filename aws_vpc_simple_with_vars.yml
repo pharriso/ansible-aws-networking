@@ -1,0 +1,19 @@
+---
+- name: create vpc
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vars/vpc-net2
+  tasks:
+
+  - name: create demo vpc
+    amazon.aws.ec2_vpc_net:
+      name: "{{ vpc_name }}"
+      cidr_block: "{{ vpc_cidr }}"
+      region: "{{ ec2_region }}"
+    register: vpc
+
+  - name: print vpc info
+    debug:
+      var: vpc

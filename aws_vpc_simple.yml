@@ -1,0 +1,17 @@
+---
+- name: create vpc
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+  - name: create demo vpc
+    amazon.aws.ec2_vpc_net:
+      name: ansible-vpc2
+      cidr_block: 10.60.0.0/24
+      region: eu-west-1
+    register: vpc
+
+  - name: print vpc info
+    debug:
+      var: vpc

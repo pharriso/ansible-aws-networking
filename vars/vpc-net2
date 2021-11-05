@@ -1,0 +1,4 @@
+ec2_region: eu-west-1
+vpc_name: ansible-vpc2
+vpc_cidr: 10.60.0.0/24
+security_group: ansible-net2

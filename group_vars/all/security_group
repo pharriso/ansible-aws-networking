@@ -1,0 +1,37 @@
+security_group_rules:
+  - proto: tcp
+    from_port: 80
+    to_port: 80
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 22
+    to_port: 22
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 5985
+    to_port: 5985
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 5986
+    to_port: 5986
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 3389
+    to_port: 3389
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 443
+    to_port: 443
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 8443
+    to_port: 8443
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 8081
+    to_port: 8081
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 8080
+    to_port: 8080
+    cidr_ip: 0.0.0.0/0
