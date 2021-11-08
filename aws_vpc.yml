@@ -4,7 +4,7 @@
   connection: local
   gather_facts: false
   vars_files:
-    - vars/vpc-net2
+    - vars/vpc-net1
   tasks:
 
   - name: create demo vpc

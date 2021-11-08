@@ -1,0 +1,89 @@
+---
+- name: create vpc
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  
+  - name: gather info for vpc
+    amazon.aws.ec2_vpc_net_info:
+      region: "{{ ec2_region }}"
+      filters:
+        "tag:Name": "{{ vpc_name }}"
+    register: vpc
+
+  - name: set fact for vpc id
+    set_fact:
+      vpc_id: "{{ vpc.vpcs[0].vpc_id }}"
+        
+  - name: set fact for vpc cidr
+    set_fact:
+      cidr_block: "{{ vpc.vpcs[0].cidr_block }}"
+
+  - name: gather info for vpc peer
+    amazon.aws.ec2_vpc_net_info:
+      region: "{{ ec2_region }}"
+      filters:
+        "tag:Name": "{{ vpc_peer_name }}"
+    register: vpc_peer
+
+  - name: set fact for vpc peer id
+    set_fact:
+      vpc_peer_id: "{{ vpc_peer.vpcs[0].vpc_id }}"
+
+  - name: set fact for vpc peer cidr
+    set_fact:
+      peer_cidr_block: "{{ vpc_peer.vpcs[0].cidr_block }}"
+
+  - name: create vpc peering connection
+    community.aws.ec2_vpc_peer:
+      region: "{{ ec2_region }}"
+      vpc_id: "{{ vpc_id }}"
+      peer_vpc_id: "{{ vpc_peer_id }}"
+      state: present
+    register: create_peer
+
+  - name: accept vpc peering connection
+    community.aws.ec2_vpc_peer:
+      region: "{{ ec2_region }}"
+      peering_id: "{{ create_peer.peering_id }}"
+      state: accept
+    register: action_peer
+
+  - name: get route table id for vpc
+    amazon.aws.ec2_vpc_route_table_info:
+      region: "{{ ec2_region }}"
+      filters:
+        vpc-id: "{{ vpc_id }}"
+    register: route_table
+
+  - name: add route for vpc
+    amazon.aws.ec2_vpc_route_table:
+      vpc_id: "{{ vpc_id }}"
+      region: "{{ ec2_region }}"
+      route_table_id: "{{ route_table.route_tables[0].id }}"
+      lookup: id
+      purge_subnets: false
+      purge_routes: false
+      routes:
+        - dest: "{{ peer_cidr_block }}"
+          vpc_peering_connection_id: "{{ create_peer.peering_id }}"
+
+  - name: get route table id for vpc peer
+    amazon.aws.ec2_vpc_route_table_info:
+      region: "{{ ec2_region }}"
+      filters:
+        vpc-id: "{{ vpc_peer_id }}"
+    register: route_table
+
+  - name: add route for vpc peer
+    amazon.aws.ec2_vpc_route_table:
+      vpc_id: "{{ vpc_peer_id }}"
+      region: "{{ ec2_region }}"
+      route_table_id: "{{ route_table.route_tables[0].id }}"
+      lookup: id
+      purge_subnets: false
+      purge_routes: false
+      routes:
+        - dest: "{{ cidr_block }}"
+          vpc_peering_connection_id: "{{ create_peer.peering_id }}"
